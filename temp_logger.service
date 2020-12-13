@@ -1,0 +1,13 @@
+[Unit]
+Description=Python temperature logger using a BME280 and InfluxDB.
+Requires=influxdb.service grafana-server.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5 
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/projects/temp_logger/logger.py
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+#/bin/bash
+
+# Compile
+dtc -@ -I dts -O dtb -o i2c-bme280.dtbo i2c-bme280.dts
+
+# Check the result:
+cat i2c-bme280.dtbo | dtc -I dtb -O dts | less 

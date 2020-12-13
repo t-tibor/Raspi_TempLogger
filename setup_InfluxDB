@@ -1,0 +1,17 @@
+wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+source /etc/os-release
+
+test $VERSION_ID = "10" && echo "deb https://repos.influxdata.com/debian stretch stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+
+test $VERSION_ID == "10" || echo "Warning: OS version is not 'buster'. Please update the source path."
+
+sudo apt-get update && sudo apt-get install influxdb
+
+echo "Starting InfluxDB service"
+
+sudo systemctl start influxdb
+
+echo "You can try out the database with the 'influx' command."
+
+echo "You can add a new database with the 'CREATE DATABASE <name>' command"
+echo "And check the existing databases with the 'SHOW DATABASES' command"
