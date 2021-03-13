@@ -1,5 +1,5 @@
 [Unit]
-Description=Python temperature logger using a BME280 and InfluxDB.
+Description=Python temperature logger using BME280 and BMP280 sensors and InfluxDB as the data storage.
 Requires=influxdb.service grafana-server.service
 
 [Service]
