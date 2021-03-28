@@ -1,0 +1,27 @@
+Get the docker image:
+docker pull influxdb:1.8.4
+
+Generate influxdb config file:
+docker run --rm influxdb:1.8.4 influxd config > influxdb.conf
+
+Enable HTTP auth:
+auth-enabled = false -> auth-enabled = true
+sed -i 's/^  auth-enabled = false$/  auth-enabled = true/g' influxdb.conf
+
+Create the docker-compose file.
+Create the .env file with the passwords.
+
+Start the containers:
+docker-compose up -d # d - detached mode
+
+Execute the influx shell
+docker exec -it influxdb influx
+
+Authenticate:
+> auth
+
+
+Stop and remove conatiners:
+docker-compose rm --stop --force
+docker system prune --force
+sudo rm -rf ~/docker/influxdb/data/*
