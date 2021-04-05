@@ -1,3 +1,9 @@
 CREATE DATABASE telegraf WITH DURATION 1d
 CREATE USER telegraf WITH PASSWORD 'telegraf_69'
 GRANT WRITE ON telegraf to telegraf
+CREATE DATABASE temp_logger_db WITH DURATION 31d
+CREATE USER temp_logger WITH PASSWORD 'temp_logger_69'
+GRANT WRITE ON temp_logger_db to temp_logger
+CREATE USER grafana WITH password 'grafana_69'
+GRANT READ ON telegraf to grafana
+GRANT READ ON temp_logger_db to grafana

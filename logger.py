@@ -120,8 +120,8 @@ class I2C_HumiditySensor(IIO_HumiditySensor):
 # constant paramters
 host = 'localhost'
 port = '8086'
-user = 'root'
-password = 'root'
+user = 'temp_logger'
+password = 'temp_logger_69'
 sampling_period = 60
 dbname = "temp_logger_db"
 
@@ -136,7 +136,7 @@ try:
 		for sensor in sensors:
 			datapoints = sensor.get_record()
 			bResult = client.write_points(datapoints)
-
+			print('Data written successfully.')
 		time.sleep(sampling_period)
 
 except KeyboardInterrupt:

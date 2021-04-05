@@ -1,1 +1,2 @@
-BMPI_LOGGER/*
+docker/influxdb/data/*
+docker/grafana/data/*
