@@ -6,7 +6,7 @@ Type=simple
 Restart=always
 RestartSec=30
 User=pi
-ExecStart=/usr/bin/python3 /home/pi/projects/temp_logger/logger/logger.py
+ExecStart=/usr/bin/python3 /home/pi/projects/TempLogger/logger.py
 
 [Install]
 WantedBy=multi-user.target
