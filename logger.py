@@ -118,7 +118,7 @@ class I2C_HumiditySensor(IIO_HumiditySensor):
 
 
 # constant paramters
-host = 'localhost'
+host = '192.168.1.100'
 port = '8086'
 user = 'temp_logger'
 password = 'temp_logger_69'
