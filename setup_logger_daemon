@@ -1,5 +1,8 @@
 #/bin/bash
 
+# Update the python3 and the logger script path in the service file.
+cat ./temp_logger.service  | sed -e "s#ExecStart=.*#ExecStart= `which python3` `realpath ./logger.py`#" > ./temp_logger.service
+
 # Copy the service file to the systemd config folder
 sudo cp ./temp_logger.service /etc/systemd/system/
 
