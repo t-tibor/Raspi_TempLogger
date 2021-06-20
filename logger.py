@@ -61,7 +61,7 @@ class Sensor(object):
         logging.debug(f'Sensor created: {name}')
 
     @property
-    def sensor_name(self):
+    def name(self):
         return self._sensor_name
 
     def add_channel(self, channel):
@@ -157,13 +157,14 @@ class Adapter(object):
             self.do_close(**kwargs)
             self._status == "closed"
     
-    def write_data(self, data):
+    def write_data(self, sensor_name, data):
         pass
 
 
 class InfluxAdapter(Adapter):    
     def __init__(self):
-        # constant parameters
+        super().__init__()
+        # constant parameters        
         self.host = '192.168.1.100'
         self.port = '8086'
         self.user = 'temp_logger'
@@ -179,7 +180,7 @@ class InfluxAdapter(Adapter):
     def do_close(self, **kwargs):
         self.client = None
 
-    def write_data(self, data):
+    def write_data(self, sensor_name, data):
         isotimestamp	= datetime.datetime.utcnow().isoformat()
         timestamp 		= datetime.datetime.now().strftime("%Y %b %d - %H:%M:%S")
 
@@ -189,7 +190,7 @@ class InfluxAdapter(Adapter):
         fields = { ch_name:ch_data['value'] for (ch_name, ch_data) in data.items() }
         datapoints = [
         {
-            "measurement" : self._sensor_name,
+            "measurement" : sensor_name,
             "tags" : {"runNum":1,},
             "time" : isotimestamp,
             "fields" : fields
@@ -258,7 +259,7 @@ class HassAdapter(Adapter):
             time.sleep(0.1)
         return autodetect_data['state_topic']
 
-    def write_data(self, sensor_data):        
+    def write_data(self, sensor_name, sensor_data):        
         for channel_name, channel_data in sensor_data.items():
             topic   = self._get_channel_topic(channel_data)
             payload = channel_data['value']
@@ -292,10 +293,11 @@ class DataUploader(object):
     def _do_update(self):
         for m in self._mapping:
             sensor = m['sensor']
-            adapters = m['adapters']            
+            sensor_name = sensor.name
             sensor_data = sensor.data
+            adapters = m['adapters']            
             for adapter in adapters:
-                adapter.write_data(sensor_data)
+                adapter.write_data(sensor_name, sensor_data)
 
     def update_loop(self, loop_period_sec):
         self._open_adapters()
@@ -317,14 +319,14 @@ indoor_hass_adapter = HassAdapter(name = 'Indoor')
 uploader = DataUploader( mapping = [
                                         {
                                             'sensor':   I2C_PressureSensor(address=0x77, name='Outdoors'),
-                                            'adapters': [ outdoor_hass_adapter]
+                                            'adapters': [ influx_adapter,outdoor_hass_adapter]
                                         },
                                         {
                                             'sensor':   I2C_HumiditySensor(address=0x76, name='Room temperature'),
-                                            'adapters': [ indoor_hass_adapter]
+                                            'adapters': [ influx_adapter, indoor_hass_adapter]
                                         }
                                    ]
                        )
 
-uploader.update_loop(loop_period_sec = 10)
+uploader.update_loop(loop_period_sec = 55)
 
