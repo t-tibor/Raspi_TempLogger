@@ -11,7 +11,7 @@ from influxdb import InfluxDBClient
 import paho.mqtt.client as mqtt
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class SensorChannel(object):
