@@ -25,16 +25,16 @@ class SensorChannel(object):
     def name(self):
         return self._channel_name
 
-    def get_data(self):
-        data = {}
-        data['channel_name'] = self._channel_name
-        data['unit']         = self._unit
-        data['device_class'] = self._hass_device_class
-        return data
+    def get_channel_data(self):
+        channel_data = {}
+        channel_data['channel_name'] = self._channel_name
+        channel_data['unit']         = self._unit
+        channel_data['device_class'] = self._hass_device_class
+        return channel_data
 
     @property
     def data(self):
-        return self.get_data()
+        return self.get_channel_data()
     
 
 class IIO_SensorChannel(SensorChannel):
@@ -43,8 +43,8 @@ class IIO_SensorChannel(SensorChannel):
         self._div = kwargs.get('div', 1)
         self._path = sysfs_path
 
-    def get_data(self):
-        data = super().get_data()
+    def get_channel_data(self):
+        data = super().get_channel_data()
         with open(self._path, 'r') as f:
             try:
                 value = f.readline()
@@ -69,14 +69,14 @@ class Sensor(object):
 
     @property
     def data(self):
-        return self.get_data_dict()
+        return self.get_sensor_data()
 
-    def get_data_dict(self):
-        data = {}        
-        for ch in self._channels:
-            data[ch.name] = ch.data
-        logging.debug(f'Sensor data dict created: {data}')
-        return data
+    def get_sensor_data(self):
+        sensor_data = {}
+        sensor_data['sensor_name']   = self._sensor_name
+        sensor_data['channels'] = { ch.name:ch.data for ch in self._channels }        
+        logging.debug(f'Sensor data dict created: {sensor_data}')
+        return sensor_data
 
 
 class IIO_Sensor(Sensor):
@@ -157,7 +157,7 @@ class Adapter(object):
             self.do_close(**kwargs)
             self._status == "closed"
     
-    def write_data(self, sensor_name, data):
+    def write_data(self, sensor_data):
         pass
 
 
@@ -180,14 +180,16 @@ class InfluxAdapter(Adapter):
     def do_close(self, **kwargs):
         self.client = None
 
-    def write_data(self, sensor_name, data):
+    def write_data(self, sensor_data):
         isotimestamp	= datetime.datetime.utcnow().isoformat()
         timestamp 		= datetime.datetime.now().strftime("%Y %b %d - %H:%M:%S")
 
+        sensor_name = sensor_data['sensor_name']
+        channels    = sensor_data['channels']
         #print(self._sensor_name)
         #print(f'Data: {data_dict}')
 
-        fields = { ch_name:ch_data['value'] for (ch_name, ch_data) in data.items() }
+        fields = { ch_name:ch_data['value'] for (ch_name, ch_data) in channels.items() }
         datapoints = [
         {
             "measurement" : sensor_name,
@@ -259,14 +261,14 @@ class HassAdapter(Adapter):
             time.sleep(0.1)
         return autodetect_data['state_topic']
 
-    def write_data(self, sensor_name, sensor_data):        
-        for channel_name, channel_data in sensor_data.items():
+    def write_data(self, sensor_data):        
+        sensor_name = sensor_data['sensor_name']
+        channels = sensor_data['channels']
+        for channel_name, channel_data in channels.items():
             topic   = self._get_channel_topic(channel_data)
             payload = channel_data['value']
             logging.debug(f'Publishing mqtt data topic: {topic}, payload: {payload}')
             self._client.publish(topic, payload)
-
-
 
 
 class DataUploader(object):
@@ -297,7 +299,7 @@ class DataUploader(object):
             sensor_data = sensor.data
             adapters = m['adapters']            
             for adapter in adapters:
-                adapter.write_data(sensor_name, sensor_data)
+                adapter.write_data(sensor_data)
 
     def update_loop(self, loop_period_sec):
         self._open_adapters()
