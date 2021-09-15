@@ -30,6 +30,7 @@ class SensorChannel(object):
         channel_data['channel_name'] = self._channel_name
         channel_data['unit']         = self._unit
         channel_data['device_class'] = self._hass_device_class
+        channel_data['value']        = math.nan
         return channel_data
 
     @property
@@ -49,7 +50,7 @@ class IIO_SensorChannel(SensorChannel):
             try:
                 value = f.readline()
             except:
-                value = 0
+                value = math.nan
         data['value'] = float(value)/self._div
         return data
 
@@ -74,7 +75,8 @@ class Sensor(object):
     def get_sensor_data(self):
         sensor_data = {}
         sensor_data['sensor_name']   = self._sensor_name
-        sensor_data['channels'] = { ch.name:ch.data for ch in self._channels }        
+        all_channel_data = { ch.name:ch.data for ch in self._channels }        
+        sensor_data['channels'] = { name:data for name,data in all_channel_data.items()  if not math.isnan(data['value']) }
         logging.debug(f'Sensor data dict created: {sensor_data}')
         return sensor_data
 
@@ -314,6 +316,7 @@ class DataUploader(object):
         self._close_adapters()
 
 
+logging.info('Sensor logger version 2.0')
 influx_adapter = InfluxAdapter()
 outdoor_hass_adapter = HassAdapter(name='Outdoor')
 indoor_hass_adapter = HassAdapter(name = 'Indoor')
