@@ -122,6 +122,7 @@ class I2C_Utils():
         for item in items:
             if item.find('iio:device') > -1:
                 return os.path.join(dev_path, item)
+        return None
 
 
 class I2C_PressureSensor(IIO_PressureSensor):
@@ -134,6 +135,22 @@ class I2C_HumiditySensor(IIO_HumiditySensor):
     def __init__(self, address, **kwargs):
         iio_path = I2C_Utils.get_iio_dev_path(address)
         super().__init__(iio_path, **kwargs)		
+
+
+class I2C_SensorFactory(object):
+  @staticmethod
+  def create_sensor(type, address, **kwargs):
+    sensor=None
+
+    try:
+        if type=='humidity':
+            sensor=I2C_HumiditySensor(address, **kwargs)
+        elif type=='pressure':
+            sensor=I2C_PressureSensor(address, **kwargs)
+    except:
+        logging.error(f'Cannot create sensor with type: {type}, address: {address}, args: {kwargs}')
+
+    return sensor
 
 
 
@@ -297,11 +314,12 @@ class DataUploader(object):
     def _do_update(self):
         for m in self._mapping:
             sensor = m['sensor']
-            sensor_name = sensor.name
-            sensor_data = sensor.data
-            adapters = m['adapters']            
-            for adapter in adapters:
-                adapter.write_data(sensor_data)
+            if sensor is not None:
+                sensor_name = sensor.name
+                sensor_data = sensor.data
+                adapters = m['adapters']            
+                for adapter in adapters:
+                        adapter.write_data(sensor_data)
 
     def update_loop(self, loop_period_sec):
         self._open_adapters()
@@ -323,11 +341,11 @@ indoor_hass_adapter = HassAdapter(name = 'Indoor')
 
 uploader = DataUploader( mapping = [
                                         {
-                                            'sensor':   I2C_PressureSensor(address=0x77, name='Outdoors'),
+                                            'sensor':   I2C_SensorFactory.create_sensor('pressure', address=0x77, name='Outdoors'),
                                             'adapters': [ influx_adapter,outdoor_hass_adapter]
                                         },
                                         {
-                                            'sensor':   I2C_HumiditySensor(address=0x76, name='Room temperature'),
+                                            'sensor':   I2C_SensorFactory.create_sensor('humidity', address=0x76, name='Room temperature'),
                                             'adapters': [ influx_adapter, indoor_hass_adapter]
                                         }
                                    ]
