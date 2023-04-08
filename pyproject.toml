@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "IIO sensor reader publisher"
+version = "1.0"
+description = "Python package that publishes the measurement data of IIO devices to home assistant and influxdb."
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Tusori Tibor", email = "ttuti94@gmail.com"},
+]
+maintainers = [
+  {name = "Tusori Tibor", email = "ttuti94@gmail.com"}
+]
+repository = "https://github.com/t-tibor/Raspi_TempLogger"
+dependencies = [
+  "influxdb",
+  "paho-mqtt",
+]
