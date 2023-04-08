@@ -341,10 +341,6 @@ indoor_hass_adapter = HassAdapter(name = 'Indoor')
 
 uploader = DataUploader( mapping = [
                                         {
-                                            'sensor':   I2C_SensorFactory.create_sensor('pressure', address=0x77, name='Outdoors'),
-                                            'adapters': [ influx_adapter,outdoor_hass_adapter]
-                                        },
-                                        {
                                             'sensor':   I2C_SensorFactory.create_sensor('humidity', address=0x76, name='Room temperature'),
                                             'adapters': [ influx_adapter, indoor_hass_adapter]
                                         }
