@@ -1,5 +1,9 @@
+import math
+import logging
+from typing import List
+
 class SensorChannel(object):
-    def __init__(self, name, **kwargs):
+    def __init__(self, name:str, **kwargs):
         self._channel_name = name
         self._unit = kwargs.get("unit", "")
         self._hass_device_class = kwargs.get("hass_device_class", "")
@@ -32,16 +36,16 @@ class Sensor(object):
     def name(self):
         return self._sensor_name
 
-    def add_channel(self, channel):
+    def add_channel(self, channel: List[SensorChannel]) -> None:
         self._channels.append(channel)
 
     @property
-    def data(self):
+    def data(self) -> List[SensorChannel]:
         return self.get_sensor_data()
 
     def get_sensor_data(self):
         sensor_data = {}
-        sensor_data['sensor_name']   = self._sensor_name
+        sensor_data['sensor_name'] = self._sensor_name
         all_channel_data = { ch.name:ch.data for ch in self._channels }        
         sensor_data['channels'] = { name:data for name,data in all_channel_data.items()  if not math.isnan(data['value']) }
         logging.debug(f'Sensor data dict created: {sensor_data}')

@@ -1,0 +1,12 @@
+[Unit]
+Description=Python temperature logger using BME280 and BMP280 sensors and InfluxDB as the data storage.
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=30
+User=pi
+ExecStart= /usr/bin/python3 /home/pi/projects/Raspi_TempLogger/sensor_logger/sensor_logger.py
+
+[Install]
+WantedBy=multi-user.target

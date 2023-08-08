@@ -9,4 +9,4 @@ Config and setup scripts for an environment monitoring system using a rasberry p
 5. Check whether the new devices are shown under the following path: /sys/bus/i2c/devices/1-xxxx
 6. Run the setup_python.sh script so that the dependencies are installed.
 7. Check whether the logger.py script works.
-8. Install the logger as a deamon service using the setup_logger_daemon.sh scipt.
+8. Install the logger as a deamon service using the scripts/setup_logger_daemon.sh scipt.
